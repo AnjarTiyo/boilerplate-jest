@@ -5,6 +5,7 @@
         "test": "jest test/**"
     },
     "devDependencies": {
+        "@faker-js/faker": "^8.0.2",
         "ajv": "^8.12.0",
         "chai": "^4.3.7",
         "chai-json-schema": "^1.5.1",
