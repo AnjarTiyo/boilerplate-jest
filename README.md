@@ -61,7 +61,8 @@ npm run test
 
 ### Result Example
 
-![Boilerplate API Automation](images/boilerplate.png)
+![Boilerplate API Automation](images/boilerplate1.png)
+![Boilerplate API Automation](images/boilerplate2.png)
 
 ## Enjoy
 
