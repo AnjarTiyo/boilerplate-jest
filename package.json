@@ -1,0 +1,15 @@
+{
+    "name": "Reqres.in api automation using Jest",
+    "author": "Anjar Tiyo",
+    "scripts": {
+        "test": "jest test/**"
+    },
+    "devDependencies": {
+        "ajv": "^8.12.0",
+        "chai": "^4.3.7",
+        "chai-json-schema": "^1.5.1",
+        "jest": "^29.5.0",
+        "jest-json-schema": "^6.1.0",
+        "supertest": "^6.3.3"
+    }
+}
