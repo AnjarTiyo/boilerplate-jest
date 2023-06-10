@@ -2,10 +2,11 @@
 const user = require('../api/users/users.api.js');
 const log = console.log
 const sort = require('../helper/is-sorted.js');
-const {faker} = require('@faker-js/faker');
+const { faker } = require('@faker-js/faker');
 
 let startTime;
 let availableUserId;
+let createdUserId;
 
 describe("Feature: Get List All Users", () => {
     beforeEach(() => {
@@ -102,7 +103,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with valid data", async () => {
         const name = faker.person.fullName();
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -124,7 +125,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with integer name", async () => {
         const name = Math.floor(Math.random() * 999);
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -143,7 +144,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with undefined name", async () => {
         const name = undefined;
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -162,7 +163,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with null name", async () => {
         const name = null;
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -181,7 +182,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with boolean name", async () => {
         const name = true;
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -200,7 +201,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with array name", async () => {
         const name = [faker.person.fullName(), faker.person.fullName()];
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -219,7 +220,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with blank name", async () => {
         const name = "";
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -238,7 +239,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with too few name", async () => {
         const name = "a".repeat(1);
         const job = faker.person.jobTitle();
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -300,7 +301,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user with invalid job title", async () => {
         const name = faker.person.fullName();
         const job = Math.floor(Math.random() * 999);
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -319,7 +320,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user without job title", async () => {
         const name = faker.person.fullName();
         const job = "";
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -338,7 +339,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user without job title too short", async () => {
         const name = faker.person.fullName();
         const job = "a".repeat(1);
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -357,7 +358,7 @@ describe("Feature: Create a new user", () => {
     test("Create new user without job title too short", async () => {
         const name = faker.person.fullName();
         const job = "a".repeat(103000);
-        
+
         const payload = {
             "name": name,
             "job": job
@@ -488,8 +489,7 @@ describe("Feature: Update an user", () => {
     })
 })
 
-
-describe.only("Feature: Get single user", () => {
+describe("Feature: Get single user", () => {
     beforeAll(async () => {
         const res = await user.getListAllUsers()
         availableUserId = res.body.data.map(obj => obj.id);
@@ -501,7 +501,7 @@ describe.only("Feature: Get single user", () => {
 
     test("Get single user detail with valid id", async () => {
         const userId = availableUserId[Math.floor(Math.random() * availableUserId.length)];
-        
+
         const res = await user.getSingleUser(userId);
 
         // Performance Testing
@@ -516,9 +516,9 @@ describe.only("Feature: Get single user", () => {
         expect(res.body.data.email).not.toBeNull();
     })
 
-    test.only("Get single user detail with invalid id", async () => {
+    test("Get single user detail with invalid id", async () => {
         const userId = 'invalid';
-        
+
         const res = await user.getSingleUser(userId);
 
         // Performance Testing
@@ -527,5 +527,35 @@ describe.only("Feature: Get single user", () => {
         // Functional Testing
         expect(res.statusCode).toBe(404);
         expect(JSON.stringify(res.body)).toMatch(/user not found/i)
+    })
+})
+
+describe("Feature: Delete an user", () => {
+    beforeEach(async () => {
+        startTime = Date.now();
+
+        const res = await user.createANewValidUser(faker.person.fullName(), faker.person.jobTitle());
+        createdUserId = res.body.id;
+    })
+
+    test("Delete an user with valid id", async () => {
+        const res = await user.deleteAnUser(createdUserId);
+
+        // Performance testing
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        //Functional testing
+        expect(res.statusCode).toBe(204);
+    })
+
+    test("Delete an user with invalid id", async () => {
+        const res = await user.deleteAnUser("invalid");
+
+        // Performance testing
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        //Functional testing
+        expect(res.statusCode).toBe(404);
+        expect(res.body).toMatch(/user not found/i)
     })
 })
