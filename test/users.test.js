@@ -2,7 +2,7 @@
 const user = require('../api/users/users.api.js');
 const log = console.log
 const sort = require('../helper/is-sorted.js');
-const {faker} = require('@faker-js/faker')
+const {faker} = require('@faker-js/faker');
 
 let startTime;
 
@@ -294,5 +294,104 @@ describe("Feature: Create a new user", () => {
         expect(res.body.name).toBe(name);
         expect(res.body.job).toBe(job);
         expect(Date.parse(res.body.createdAt)).toBeLessThan(Date.now());
+    })
+
+    test("Create new user with invalid job title", async () => {
+        const name = faker.person.fullName();
+        const job = Math.floor(Math.random() * 999);
+        
+        const payload = {
+            "name": name,
+            "job": job
+        }
+        const res = await user.createNewUser(payload);
+
+        //Performance test
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        //Functionality test
+        expect(res.statusCode).toBe(400);
+        expect(JSON.stringify(res.header)).toMatch(/application\/json/i);
+        expect(JSON.stringify(res.body)).toMatch(/job must be a string/i);
+    })
+
+    test("Create new user without job title", async () => {
+        const name = faker.person.fullName();
+        const job = "";
+        
+        const payload = {
+            "name": name,
+            "job": job
+        }
+        const res = await user.createNewUser(payload);
+
+        //Performance test
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        //Functionality test
+        expect(res.statusCode).toBe(400);
+        expect(JSON.stringify(res.header)).toMatch(/application\/json/i);
+        expect(JSON.stringify(res.body)).toMatch(/job title is required/i);
+    })
+
+    test("Create new user without job title too short", async () => {
+        const name = faker.person.fullName();
+        const job = "a".repeat(1);
+        
+        const payload = {
+            "name": name,
+            "job": job
+        }
+        const res = await user.createNewUser(payload);
+
+        //Performance test
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        //Functionality test
+        expect(res.statusCode).toBe(400);
+        expect(JSON.stringify(res.header)).toMatch(/application\/json/i);
+        expect(JSON.stringify(res.body)).toMatch(/job title is too short/i);
+    })
+
+    test("Create new user without job title too short", async () => {
+        const name = faker.person.fullName();
+        const job = "a".repeat(103000);
+        
+        const payload = {
+            "name": name,
+            "job": job
+        }
+        const res = await user.createNewUser(payload);
+
+        //Performance test
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        //Functionality test
+        expect(res.statusCode).toBe(413);
+        // expect(JSON.stringify(res.header)).toMatch(/application\/json/i);
+        expect(JSON.stringify(res.body)).toMatch(/too large/i);
+    })
+})
+
+describe.only("Feature: Update an user", () => {
+    test("Update an user name with valid data", async () => {
+        const initialName = faker.person.fullName();
+        const initialJob = faker.person.jobTitle();
+
+        const initialRes = await user.createANewValidUser(initialName, initialJob);
+
+        const newName = faker.person.fullName();
+
+        startTime = Date.now();
+
+        const updatedRes = await user.updateAnUser(initialRes.body.id, newName, initialJob);
+
+        //Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000)
+
+        //Functional Testing
+        expect(updatedRes.statusCode).toBe(200);
+        expect(updatedRes.body.name).not.toBe(initialRes.body.name);
+        expect(updatedRes.body.job).toBe(initialRes.body.job);
     })
 })
