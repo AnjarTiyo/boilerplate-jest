@@ -393,5 +393,96 @@ describe.only("Feature: Update an user", () => {
         expect(updatedRes.statusCode).toBe(200);
         expect(updatedRes.body.name).not.toBe(initialRes.body.name);
         expect(updatedRes.body.job).toBe(initialRes.body.job);
+        expect(updatedRes.body).toHaveProperty("updatedAt");
+        expect(Date.parse(updatedRes.body.updatedAt)).toBeGreaterThan(Date.parse(initialRes.body.createdAt))
+    })
+
+    test("Update an user job with valid data", async () => {
+        const initialName = faker.person.fullName();
+        const initialJob = faker.person.jobTitle();
+
+        const initialRes = await user.createANewValidUser(initialName, initialJob);
+
+        const newJob = faker.person.jobTitle();
+
+        startTime = Date.now();
+
+        const updatedRes = await user.updateAnUser(initialRes.body.id, initialName, newJob);
+
+        //Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000)
+
+        //Functional Testing
+        expect(updatedRes.statusCode).toBe(200);
+        expect(updatedRes.body.job).not.toBe(initialRes.body.job);
+        expect(updatedRes.body.name).toBe(initialRes.body.name);
+        expect(updatedRes.body).toHaveProperty("updatedAt");
+        expect(Date.parse(updatedRes.body.updatedAt)).toBeGreaterThan(Date.parse(initialRes.body.createdAt))
+    })
+
+    test("Update an user name with invalid data", async () => {
+        const initialName = faker.person.fullName();
+        const initialJob = faker.person.jobTitle();
+
+        const initialRes = await user.createANewValidUser(initialName, initialJob);
+
+        const newName = Math.floor(Math.ceil() * 999);
+
+        startTime = Date.now();
+
+        const updatedRes = await user.updateAnUser(initialRes.body.id, newName, initialJob);
+
+        //Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000)
+
+        //Functional Testing
+        expect(updatedRes.statusCode).toBe(400);
+        expect(updatedRes.body).toMatch(/name must be a string/i);
+
+        //Verify if data is not changed is invalid due to this endpoint is dummy
+    })
+
+    test("Update an user job with invalid data", async () => {
+        const initialName = faker.person.fullName();
+        const initialJob = faker.person.jobTitle();
+
+        const initialRes = await user.createANewValidUser(initialName, initialJob);
+
+        const newJob = Math.floor(Math.ceil() * 999);
+
+        startTime = Date.now();
+
+        const updatedRes = await user.updateAnUser(initialRes.body.id, initialName, newJob);
+
+        //Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000)
+
+        //Functional Testing
+        expect(updatedRes.statusCode).toBe(400);
+        expect(updatedRes.body).toMatch(/job must be a string/i);
+
+        //Verify if data is not changed is invalid due to this endpoint is dummy
+    })
+
+    test("Update an user name with invalid id", async () => {
+        const initialName = faker.person.fullName();
+        const initialJob = faker.person.jobTitle();
+
+        await user.createANewValidUser(initialName, initialJob);
+
+        const newName = faker.person.fullName();
+
+        startTime = Date.now();
+
+        const updatedRes = await user.updateAnUser("invalid", newName, initialJob);
+
+        //Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000)
+
+        //Functional Testing
+        expect(updatedRes.statusCode).toBe(404);
+        expect(updatedRes.body).toMatch(/user not found/i);
+
+        //Verify if data is not changed is invalid due to this endpoint is dummy
     })
 })
