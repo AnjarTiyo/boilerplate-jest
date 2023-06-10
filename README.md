@@ -59,11 +59,21 @@ npm install
 npm run test
 ```
 
+#### Run Test and generate html report
+
+```
+npm run test:report
+```
+
 ### Result Example
 
 ![Boilerplate API Automation](images/boilerplate2.png)
 
 ![Boilerplate API Automation](images/boilerplate1.png)
+
+#### Test result example using jest-html-reporter
+
+![Test result example using jest-html-reporter](images/test-result-example.png)
 
 ## Enjoy
 
