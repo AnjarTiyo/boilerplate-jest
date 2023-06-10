@@ -5,6 +5,7 @@ const sort = require('../helper/is-sorted.js');
 const {faker} = require('@faker-js/faker');
 
 let startTime;
+let availableUserId;
 
 describe("Feature: Get List All Users", () => {
     beforeEach(() => {
@@ -373,7 +374,7 @@ describe("Feature: Create a new user", () => {
     })
 })
 
-describe.only("Feature: Update an user", () => {
+describe("Feature: Update an user", () => {
     test("Update an user name with valid data", async () => {
         const initialName = faker.person.fullName();
         const initialJob = faker.person.jobTitle();
@@ -484,5 +485,47 @@ describe.only("Feature: Update an user", () => {
         expect(updatedRes.body).toMatch(/user not found/i);
 
         //Verify if data is not changed is invalid due to this endpoint is dummy
+    })
+})
+
+
+describe.only("Feature: Get single user", () => {
+    beforeAll(async () => {
+        const res = await user.getListAllUsers()
+        availableUserId = res.body.data.map(obj => obj.id);
+    })
+
+    beforeEach(() => {
+        startTime = Date.now()
+    })
+
+    test("Get single user detail with valid id", async () => {
+        const userId = availableUserId[Math.floor(Math.random() * availableUserId.length)];
+        
+        const res = await user.getSingleUser(userId);
+
+        // Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        // Functional Testing
+        expect(res.statusCode).toBe(200);
+        expect(res.body.data.id).toBe(userId);
+        expect(res.body.data.email).not.toBeNull();
+        expect(res.body.data.first_name).not.toBeNull();
+        expect(res.body.data.last_name).not.toBeNull();
+        expect(res.body.data.email).not.toBeNull();
+    })
+
+    test.only("Get single user detail with invalid id", async () => {
+        const userId = 'invalid';
+        
+        const res = await user.getSingleUser(userId);
+
+        // Performance Testing
+        expect(Date.now() - startTime).toBeLessThan(2000);
+
+        // Functional Testing
+        expect(res.statusCode).toBe(404);
+        expect(JSON.stringify(res.body)).toMatch(/user not found/i)
     })
 })
