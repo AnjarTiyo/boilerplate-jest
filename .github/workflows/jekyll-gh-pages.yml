@@ -1,0 +1,34 @@
+name: Deploy Jekyll with GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Jekyll
+        run: gem install bundler jekyll
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Generate report
+        run: npm run test:report
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: ./report
